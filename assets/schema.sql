@@ -5,13 +5,13 @@ CREATE DATABASE personnelDB;
 USE personnelDB;
 
 CREATE TABLE departments (
-    deptID VARCHAR(25),
+    deptID INT AUTO_INCREMENT,
     deptName VARCHAR(25),
     PRIMARY KEY(deptID)
 );
 
 CREATE TABLE roles (
-    roleID VARCHAR(25),
+    roleID INT AUTO_INCREMENT,
     title VARCHAR(50),
     salary DECIMAL(10,2),
     deptID VARCHAR(25),
@@ -27,10 +27,10 @@ CREATE TABLE employees (
     PRIMARY KEY(empID)
 )
 
-CREATE TABLE managers (
-    managerID INT AUTO_INCREMENT,
-    deptID VARCHAR(25),
-    firstName VARCHAR(25),
-    lastName VARCHAR(25),
-    PRIMARY KEY(managerID)
-)
+-- CREATE TABLE managers (
+--     managerID INT AUTO_INCREMENT,
+--     deptID VARCHAR(25),
+--     firstName VARCHAR(25),
+--     lastName VARCHAR(25),
+--     PRIMARY KEY(managerID)
+-- )
