@@ -96,7 +96,7 @@ var connection = mysql.createConnection({
           name: "dept"
       }])
       .then(function(response) {
-        dept = response.dept;
+        let dept = response.dept;
         connection.query("INSERT INTO departments (deptName) VALUES (?)", [dept], function (err, table) {
         if (err) throw err;
         console.log('Department ' + dept + ' has been added!')
@@ -109,7 +109,7 @@ var connection = mysql.createConnection({
         })
             })
       })
-      return connection.end();
+      // return connection.end();
     };
 
   function updateDepartment() {
@@ -149,25 +149,19 @@ function addRole() {
           name: "title"
         },
         {
-        type: "input",
+        type: "number",
         message: "Enter the Role Salary?",
         name: "salary"
         },
         {
-        type: "input",
+        type: "number",
         message: "Select a Department ID for this Role:",
         name: "dept"
         },
     ])
       .then(function(response) {       
-        // var values = []; 
-        // for (var v in response) { 
-        //     values.push(response[v]);
-        // }
-        var salary = parseFloat(response.salary);
-        var deptID = parseInt(response.dept);
-        console.log(response, response.title, salary, deptID);
-        connection.query("INSERT INTO roles (title, salary, deptID) VALUES (?, ?, ?)", [response.title, salary, deptID], function (err, result) {
+        connection.query("INSERT INTO roles (title, salary, deptID) VALUES (?, ?, ?)",
+                          [response.title, response.salary, response.dept], function (err, result) {
         if (err) throw err;
         console.log('Role ' + response.title + ' has been added!')
         connection.query("SELECT * FROM roles", function (err, table) {
@@ -182,7 +176,7 @@ function addRole() {
         })
     })
     })
-      return connection.end();
+      // return connection.end();
 }
 
 function updateRole() {
@@ -214,7 +208,47 @@ function nextEmployeeAction() {
   }
 
   function addEmployee() {
-
+    inquirer
+    .prompt([
+        {
+          type: "input",
+          message: "Enter the Employee's First Name:",
+          name: "first"
+        },
+        {
+        type: "input",
+        message: "Enter the employee's Last Name:",
+        name: "last"
+        },
+        {
+        type: "number",
+        message: "Select a Role ID for this Employee:",
+        name: "role"
+        },
+        {
+          type: "number",
+          message: "Select a Manager ID for this Employee:",
+          name: "manager"
+        }
+    ])
+      .then(function(response) {       
+        connection.query("INSERT INTO employees (firstName, lastName, roleID, managerID) VALUES (?, ?, ?, ?)",
+                          [response.first, response.last, response.role, response.manager], function (err, result) {
+        if (err) throw err;
+        console.log('Employee ' + response.first + ' ' + response.last + ' has been added!')
+        connection.query("SELECT * FROM employees", function (err, table) {
+            if (err) throw err;
+            console.log('Employees: ')
+            table.forEach(record => {
+                console.log('Employee ID: ' + record.roleID +
+                            '   || Employee Name: ' + record.firstName + ' ' + record.lastName + 
+                            '   || Employee Role ID: ' + record.roleID +
+                            '   || Employee Manager ID: ' + record.managerID)
+            })
+        })
+    })
+    })
+      // return connection.end();
   }
 
   function updateEmployee() {
