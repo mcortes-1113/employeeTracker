@@ -29,7 +29,7 @@ var connection = mysql.createConnection({
             console.log('Department ID: ' + record.deptID + '   || Department Name: ' + record.deptName)
         })
     })
-    return connection.end();
+    return nextDepartmentAction();
   }
 
   function viewEmployees() {
@@ -45,7 +45,7 @@ var connection = mysql.createConnection({
             )
         })
     })
-    return connection.end();
+    return nextEmployeeAction();
   }
 
   function viewRoles() {
@@ -60,7 +60,165 @@ var connection = mysql.createConnection({
             )
         })
     })
-    return connection.end();
+    return nextRolesAction();
+  }
+
+  function nextDepartmentAction() {
+    inquirer
+    .prompt([
+      {
+          type: "list",
+          name: "nextAction",
+          message: "What would you like to do?",
+          choices: ['Add a Department', 'Update a Department', 'Exit Application']
+      }])
+    .then(function(response) {
+      let nextAction = response.nextAction;
+      switch (nextAction) {
+        case 'Add a Department':
+            addDepartment();
+            break;
+        case 'Update a Department':
+            updateDepartment();
+            break;
+        case 'Exit Application':
+            return connection.end();
+      }
+    });
+  }
+
+  function addDepartment() {
+    inquirer
+    .prompt([
+      {
+          type: "input",
+          message: "Enter the Department Name?",
+          name: "dept"
+      }])
+      .then(function(response) {
+        dept = response.dept;
+        connection.query("INSERT INTO departments (deptName) VALUES (?)", [dept], function (err, table) {
+        if (err) throw err;
+        console.log('Department ' + dept + ' has been added!')
+        connection.query("SELECT * FROM departments", function (err, table) {
+            if (err) throw err;
+            console.log('Departments: ')
+            table.forEach(record => {
+                console.log('Department ID: ' + record.deptID + '   || Department Name: ' + record.deptName)
+            })
+        })
+            })
+      })
+      return connection.end();
+    };
+
+  function updateDepartment() {
+
+  }
+
+function nextRolesAction() {
+    inquirer
+    .prompt([
+      {
+          type: "list",
+          name: "nextAction",
+          message: "What would you like to do?",
+          choices: ['Add a Role', 'Update a Role', 'Exit Application']
+      }])
+    .then(function(response) {
+      let nextAction = response.nextAction;
+      switch (nextAction) {
+        case 'Add a Role':
+            addRole();
+            break;
+        case 'Update a Role':
+            updateRole();
+            break;
+        case 'Exit Application':
+            return connection.end();
+      }
+    });
+}
+
+function addRole() {
+    inquirer
+    .prompt([
+        {
+          type: "input",
+          message: "Enter the Role Title?",
+          name: "title"
+        },
+        {
+        type: "input",
+        message: "Enter the Role Salary?",
+        name: "salary"
+        },
+        {
+        type: "input",
+        message: "Select a Department ID for this Role:",
+        name: "dept"
+        },
+    ])
+      .then(function(response) {       
+        // var values = []; 
+        // for (var v in response) { 
+        //     values.push(response[v]);
+        // }
+        var salary = parseFloat(response.salary);
+        var deptID = parseInt(response.dept);
+        console.log(response, response.title, salary, deptID);
+        connection.query("INSERT INTO roles (title, salary, deptID) VALUES (?, ?, ?)", [response.title, salary, deptID], function (err, result) {
+        if (err) throw err;
+        console.log('Role ' + response.title + ' has been added!')
+        connection.query("SELECT * FROM roles", function (err, table) {
+            if (err) throw err;
+            console.log('Roles: ')
+            table.forEach(record => {
+                console.log('Role ID: ' + record.roleID +
+                            '   || Role Title: ' + record.title +
+                            '   || Role Salary: ' + record.salary +
+                            '   || Role Title: ' + record.deptID)
+            })
+        })
+    })
+    })
+      return connection.end();
+}
+
+function updateRole() {
+
+}
+
+function nextEmployeeAction() {
+    inquirer
+    .prompt([
+      {
+          type: "list",
+          name: "nextAction",
+          message: "What would you like to do?",
+          choices: ['Add an Employee', 'Update an Employee', 'Exit Application']
+      }])
+    .then(function(response) {
+      let nextAction = response.nextAction;
+      switch (nextAction) {
+        case 'Add an Employee':
+            addEmployee();
+            break;
+        case 'Update an Employee':
+            updateEmployee();
+            break;
+        case 'Exit Application':
+            return connection.end();
+      }
+    });
+  }
+
+  function addEmployee() {
+
+  }
+
+  function updateEmployee() {
+
   }
 
   function loadApp() {
@@ -87,9 +245,3 @@ var connection = mysql.createConnection({
       }
     });
 }
-    //   if (response.action === 'Post an Item') {
-    //     viewUserAuctions();}
-    //     else {
-    //         selectItemToBid();
-    //     }
-    //   }
