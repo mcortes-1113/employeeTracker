@@ -1,4 +1,4 @@
-USE personnelDB;;
+USE personnelDB;
 
 INSERT INTO departments (deptName)
 VALUES ('Shipping'), ('Receiving');

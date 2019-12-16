@@ -16,7 +16,7 @@ CREATE TABLE roles (
     salary DECIMAL(10,2),
     deptID VARCHAR(25),
     PRIMARY KEY(roleID)
-)
+);
 
 CREATE TABLE employees (
     empID INT AUTO_INCREMENT,
@@ -25,7 +25,7 @@ CREATE TABLE employees (
     roleID VARCHAR(25),
     managerID INT,
     PRIMARY KEY(empID)
-)
+);
 
 -- CREATE TABLE managers (
 --     managerID INT AUTO_INCREMENT,
