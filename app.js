@@ -82,6 +82,42 @@ var connection = mysql.createConnection({
   })
 }
 
+function deleteDepartment() {
+  connection.query("SELECT * FROM departments", function (err, table) {
+    if (err) throw err;
+    console.log('Departments: ')
+    table.forEach(record => {
+        console.log('Department ID: ' + record.deptID + '   || Department Name: ' + record.deptName)
+    })
+    inquirer
+    .prompt([
+      {
+          type: "number",
+          name: "deptID",
+          message: "Select the ID for the Department that you want to delete:"
+      },
+      {
+          type: "list",
+          name: "confirm",
+          message: "Are you sure you want to delete this department?",
+          choices: ["Yes", "No"]
+      }
+    ])
+    .then(function(res) {
+      if (res.confirm === 'No') {
+        loadApp()
+      } else {
+      connection.query("DELETE FROM departments WHERE deptID = ?",
+      [res.deptID], function (err, table) {
+        if (err) throw err;
+        console.log('Department info has been deleted!')
+        loadApp()
+      
+    });
+    }})
+})
+}
+
 function viewRoles() {
   connection.query("SELECT * FROM roles", function (err, table) {
       if (err) throw err;
@@ -170,6 +206,46 @@ function updateRole() {
 })
 }
 
+function deleteRole() {
+  connection.query("SELECT * FROM roles", function (err, table) {
+    if (err) throw err;
+    console.log('Roles: ')
+    table.forEach(record => {
+        console.log('Role ID: ' + record.roleID +
+        '   || Title: ' + record.title +
+        '   || Salary: ' + record.salary +
+        '   || Department ID: ' + record.deptID 
+        )
+    })
+    inquirer
+    .prompt([
+      {
+          type: "number",
+          name: "roleID",
+          message: "Select the ID for the Role that you want to delete:"
+      },
+      {
+          type: "list",
+          name: "confirm",
+          message: "Are you sure you want to delete this Role?",
+          choices: ["Yes", "No"]
+      }
+    ])
+    .then(function(res) {
+      if (res.confirm === 'No') {
+        loadApp()
+      } else {
+      connection.query("DELETE FROM roles WHERE roleID = ?",
+      [res.roleID], function (err, table) {
+        if (err) throw err;
+        console.log('Role info has been deleted!')
+        loadApp()
+      
+    });
+    }})
+})
+}
+
 function viewEmployees() {
   connection.query("SELECT * FROM employees", function (err, table) {
       if (err) throw err;
@@ -231,7 +307,95 @@ function viewEmployees() {
   }
 
   function updateEmployee() {
+    connection.query("SELECT * FROM employees", function (err, table) {
+      if (err) throw err;
+      console.log('Employees: ')
+      table.forEach(record => {
+          console.log('Employee ID: ' + record.empID +
+          '   || First Name: ' + record.firstName +
+          '   || Last Name: ' + record.lastName +
+          '   || Role ID: ' + record.roleID +
+          '   || Manager ID: ' + record.managerID
+          )
+      })
+      inquirer
+      .prompt([
+        {
+            type: "number",
+            name: "empID",
+            message: "Select the ID for the Employee that you want to update:"
+        },
+        {
+            type: "input",
+            name: "newFName",
+            message: "Enter the employee's new First Name:"
+        },
+        {
+          type: "input",
+          name: "newLName",
+          message: "Enter the employee's new Last Name:"
+        },
+        {
+          type: "number",
+          name: "newRole",
+          message: "Enter the employee's new Role ID:"
+        },
+        {
+        type: "number",
+        name: "newMgrID",
+        message: "Enter the employee's new Manager ID:"
+        }
+      ])
+      .then(function(res) {
+        connection.query("UPDATE employees SET firstName = ?, lastName = ?, roleID = ?, managerID = ? WHERE empID = ?",
+        [res.newFName, res.newLName, res.newRole, res.newMgrID, res.empID], function (err, table) {
+          if (err) throw err;
+          console.log('Employee info has been updated!')
+          loadApp()
+      });
+  })
+  })
+  }
 
+  function deleteEmployee() {
+    connection.query("SELECT * FROM employees", function (err, table) {
+      if (err) throw err;
+      console.log('Employees: ')
+      table.forEach(record => {
+          console.log('Employee ID: ' + record.empID +
+          '   || First Name: ' + record.firstName +
+          '   || Last Name: ' + record.lastName +
+          '   || Role ID: ' + record.roleID +
+          '   || Manager ID: ' + record.managerID
+          )
+      })
+      inquirer
+      .prompt([
+        {
+            type: "number",
+            name: "empID",
+            message: "Select the ID for the Employee that you want to delete:"
+        },
+        {
+            type: "list",
+            name: "confirm",
+            message: "Are you sure you want to delete this employee?",
+            choices: ["Yes", "No"]
+        }
+      ])
+      .then(function(res) {
+        if (res.confirm === 'No') {
+          loadApp()
+        } else {
+        connection.query("DELETE FROM employees WHERE empID = ?",
+        [res.empID], function (err, table) {
+          if (err) throw err;
+          console.log('Employee info has been deleted!')
+          loadApp()
+        
+      });
+      }})
+  })
   }
 
   function exitApp() {
@@ -255,7 +419,9 @@ function viewEmployees() {
                    'Update an employee',
                    'Rename a Department',
                    'Update a Role',
-                   'View Budget by Department',
+                   'Delete an Employee',
+                   'Delete a Department',
+                   'Delete a Role',
                    'Exit App']
       }])
     .then(function(response) {
@@ -288,9 +454,15 @@ function viewEmployees() {
         case 'Update a Role':
             updateRole();
             break;
-        case 'View Budget by Department':
-            viewBudget();
+        case 'Delete an Employee':
+            deleteEmployee();
             break;
+        case 'Delete a Department':
+          deleteDepartment();
+          break;
+        case 'Delete a Role':
+          deleteRole();
+          break;
         case 'Exit App':
             exitApp();
             break;
