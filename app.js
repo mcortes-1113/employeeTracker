@@ -24,67 +24,12 @@ var connection = mysql.createConnection({
   function viewDepartments() {
     connection.query("SELECT * FROM departments", function (err, table) {
         if (err) throw err;
-        console.log('Departments: ')
+       console.log('Departments: ')
         table.forEach(record => {
             console.log('Department ID: ' + record.deptID + '   || Department Name: ' + record.deptName)
         })
-    })
-    return nextDepartmentAction();
-  }
-
-  function viewEmployees() {
-    connection.query("SELECT * FROM employees", function (err, table) {
-        if (err) throw err;
-        console.log('Employees: ')
-        table.forEach(record => {
-            console.log('Employee ID: ' + record.empID +
-            '   || First Name: ' + record.firstName +
-            '   || Last Name: ' + record.lastName +
-            '   || Role ID: ' + record.roleID +
-            '   || Manager ID: ' + record.managerID
-            )
-        })
-    })
-    return nextEmployeeAction();
-  }
-
-  function viewRoles() {
-    connection.query("SELECT * FROM roles", function (err, table) {
-        if (err) throw err;
-        console.log('Roles: ')
-        table.forEach(record => {
-            console.log('Role ID: ' + record.roleID +
-            '   || Title: ' + record.title +
-            '   || Salary: ' + record.salary +
-            '   || Department ID: ' + record.deptID 
-            )
-        })
-    })
-    return nextRolesAction();
-  }
-
-  function nextDepartmentAction() {
-    inquirer
-    .prompt([
-      {
-          type: "list",
-          name: "nextAction",
-          message: "What would you like to do?",
-          choices: ['Add a Department', 'Update a Department', 'Exit Application']
-      }])
-    .then(function(response) {
-      let nextAction = response.nextAction;
-      switch (nextAction) {
-        case 'Add a Department':
-            addDepartment();
-            break;
-        case 'Update a Department':
-            updateDepartment();
-            break;
-        case 'Exit Application':
-            return connection.end();
-      }
-    });
+        loadApp();
+    }) 
   }
 
   function addDepartment() {
@@ -100,44 +45,56 @@ var connection = mysql.createConnection({
         connection.query("INSERT INTO departments (deptName) VALUES (?)", [dept], function (err, table) {
         if (err) throw err;
         console.log('Department ' + dept + ' has been added!')
-        connection.query("SELECT * FROM departments", function (err, table) {
-            if (err) throw err;
-            console.log('Departments: ')
-            table.forEach(record => {
-                console.log('Department ID: ' + record.deptID + '   || Department Name: ' + record.deptName)
             })
-        })
-            })
+        loadApp();
       })
-      // return connection.end();
     };
 
   function updateDepartment() {
 
-  }
+    connection.query("SELECT * FROM departments", function (err, table) {
+      if (err) throw err;
+      console.log('Departments: ')
+      table.forEach(record => {
+          console.log('Department ID: ' + record.deptID + '   || Department Name: ' + record.deptName)
+      })
+      inquirer
+      .prompt([
+        {
+            type: "number",
+            name: "deptID",
+            message: "Select the ID for the Department that you want to rename:"
+        },
+        {
+            type: "input",
+            name: "newName",
+            message: "Enter the department's new name:"
+        }])
+      .then(function(response) {
+        let id = response.deptID;
+        let newValue = response.newName;
+        connection.query("UPDATE departments SET deptName = ? WHERE deptID = ?", [newValue, id], function (err, table) {
+          if (err) throw err;
+          console.log('Department has been renamed to: ' + newValue)
+          loadApp()
+      });
+  })
+  })
+}
 
-function nextRolesAction() {
-    inquirer
-    .prompt([
-      {
-          type: "list",
-          name: "nextAction",
-          message: "What would you like to do?",
-          choices: ['Add a Role', 'Update a Role', 'Exit Application']
-      }])
-    .then(function(response) {
-      let nextAction = response.nextAction;
-      switch (nextAction) {
-        case 'Add a Role':
-            addRole();
-            break;
-        case 'Update a Role':
-            updateRole();
-            break;
-        case 'Exit Application':
-            return connection.end();
-      }
-    });
+function viewRoles() {
+  connection.query("SELECT * FROM roles", function (err, table) {
+      if (err) throw err;
+      console.log('Roles: ')
+      table.forEach(record => {
+          console.log('Role ID: ' + record.roleID +
+          '   || Title: ' + record.title +
+          '   || Salary: ' + record.salary +
+          '   || Department ID: ' + record.deptID 
+          )
+      })
+      loadApp();
+  })
 }
 
 function addRole() {
@@ -164,48 +121,70 @@ function addRole() {
                           [response.title, response.salary, response.dept], function (err, result) {
         if (err) throw err;
         console.log('Role ' + response.title + ' has been added!')
-        connection.query("SELECT * FROM roles", function (err, table) {
-            if (err) throw err;
-            console.log('Roles: ')
-            table.forEach(record => {
-                console.log('Role ID: ' + record.roleID +
-                            '   || Role Title: ' + record.title +
-                            '   || Role Salary: ' + record.salary +
-                            '   || Role Title: ' + record.deptID)
-            })
-        })
+        loadApp();
     })
     })
-      // return connection.end();
 }
 
 function updateRole() {
-
-}
-
-function nextEmployeeAction() {
+  connection.query("SELECT * FROM roles", function (err, table) {
+    if (err) throw err;
+    console.log('Roles: ')
+    table.forEach(record => {
+      console.log('Role ID: ' + record.roleID +
+      '   || Title: ' + record.title +
+      '   || Salary: ' + record.salary +
+      '   || Department ID: ' + record.deptID 
+      )
+        })
     inquirer
     .prompt([
       {
-          type: "list",
-          name: "nextAction",
-          message: "What would you like to do?",
-          choices: ['Add an Employee', 'Update an Employee', 'Exit Application']
-      }])
-    .then(function(response) {
-      let nextAction = response.nextAction;
-      switch (nextAction) {
-        case 'Add an Employee':
-            addEmployee();
-            break;
-        case 'Update an Employee':
-            updateEmployee();
-            break;
-        case 'Exit Application':
-            return connection.end();
+          type: "number",
+          name: "roleID",
+          message: "Select the ID for the Role that you want to update:"
+      },
+      {
+          type: "input",
+          name: "newTitle",
+          message: "Enter the role's new title:"
+      },
+      {
+        type: "number",
+        name: "newSalary",
+        message: "Enter the role's new salary:"
+      },
+      {
+      type: "number",
+      name: "newDeptID",
+      message: "Enter the role's new Department ID:"
       }
+    ])
+    .then(function(res) {
+      connection.query("UPDATE roles SET title = ?, salary = ?, deptID = ? WHERE roleID = ?", [res.newTitle, res.newSalary, res.newDeptID, res.roleID], function (err, table) {
+        if (err) throw err;
+        console.log('Role has been updated!')
+        loadApp()
     });
-  }
+})
+})
+}
+
+function viewEmployees() {
+  connection.query("SELECT * FROM employees", function (err, table) {
+      if (err) throw err;
+      console.log('Employees: ')
+      table.forEach(record => {
+          console.log('Employee ID: ' + record.empID +
+          '   || First Name: ' + record.firstName +
+          '   || Last Name: ' + record.lastName +
+          '   || Role ID: ' + record.roleID +
+          '   || Manager ID: ' + record.managerID
+          )
+      })
+      loadApp();
+  })
+}
 
   function addEmployee() {
     inquirer
@@ -246,13 +225,18 @@ function nextEmployeeAction() {
                             '   || Employee Manager ID: ' + record.managerID)
             })
         })
+        loadApp();
     })
     })
-      // return connection.end();
   }
 
   function updateEmployee() {
 
+  }
+
+  function exitApp() {
+    console.log('Good Bye')
+    connection.end();
   }
 
   function loadApp() {
@@ -262,7 +246,17 @@ function nextEmployeeAction() {
           type: "list",
           name: "action",
           message: "What would you like to do?",
-          choices: ['View Employees', 'View Departments', 'View Roles']
+          choices: ['View Employees',
+                   'View Departments',
+                   'View Roles',
+                   'Add an Employee',
+                   'Add a Department',
+                   'Add a Role',
+                   'Update an employee',
+                   'Rename a Department',
+                   'Update a Role',
+                   'View Budget by Department',
+                   'Exit App']
       }])
     .then(function(response) {
       let action = response.action;
@@ -276,6 +270,30 @@ function nextEmployeeAction() {
         case 'View Roles':
             viewRoles();
             break;
-      }
+        case 'Add an Employee':
+            addEmployee();
+            break;        
+        case 'Add a Department':
+            addDepartment();
+            break;
+        case 'Add a Role':
+            addRole();
+            break;
+        case 'Update an employee':
+            updateEmployee();
+            break;
+        case 'Rename a Department':
+            updateDepartment();
+            break;
+        case 'Update a Role':
+            updateRole();
+            break;
+        case 'View Budget by Department':
+            viewBudget();
+            break;
+        case 'Exit App':
+            exitApp();
+            break;
+    }
     });
 }
